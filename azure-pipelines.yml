@@ -1,0 +1,61 @@
+trigger:
+- main
+
+pool:
+  vmImage: windows-latest
+
+# Following variables have to be added to 'credentials' variable group'
+# user1Email
+# user1Password
+# This is done in DevOps > Library > Variable Groups
+variables:
+- group: credentials
+
+
+steps:
+
+- task: NodeTool@0
+  inputs:
+    versionSpec: "16.x"
+  displayName: "Install Node.js"
+
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'build'
+    workingDirectory: '$(Build.SourcesDirectory)/src/PowerAppsTestEngine'
+  displayName: "Build the TestEngine project"
+  
+- script: |
+    npx playwright install --with-deps
+  workingDirectory: '$(Build.SourcesDirectory)/src/PowerAppsTestEngine'
+  displayName: "Install Playwright Browsers"
+
+- pwsh: 'bin\Debug\net6.0\playwright.ps1 install'
+  displayName: 'Additional playwright installation via powershell'
+  workingDirectory: '$(Build.SourcesDirectory)/src/PowerAppsTestEngine'
+
+# Credentials have to be set in same task the tests are initiaited
+- task: PowerShell@2
+  inputs:
+    targetType: 'inline'
+    script: |
+     $env:user1Email = "$(user1Email)"
+     $env:user1Password = "$(user1Password)"
+     dotnet run
+    workingDirectory: '$(Build.SourcesDirectory)/src/PowerAppsTestEngine'
+  displayName: "Set up user credentials & start test run"
+
+- task: PublishTestResults@2
+  condition: always()
+  inputs:
+    testResultsFormat: 'VSTest' 
+    searchFolder: '$(Build.SourcesDirectory)/samples/calculator'
+    testResultsFiles: '**/*.trx'
+  displayName: 'Publish test results'
+
+- task: PublishPipelineArtifact@1
+  condition: always()
+  displayName: 'Publish folder with screenshots'
+  inputs:
+      artifactName: 'screenshots'
+      targetPath: '$(Build.SourcesDirectory)/samples/calculator'
