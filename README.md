@@ -1,21 +1,27 @@
 ## Overview
-Forked from https://github.com/microsoft/PowerApps-TestEngine.  See the ReadMe there for full installation instructions. 
+Forked from https://github.com/microsoft/PowerApps-TestEngine.  
+See the ReadMe there for full installation instructions. 
 
-This project shows an example of running created tests (potentially from Test Studio for Canvas apps) in Azure Pipeline. 
+This project has been created to demonstrate running the tests via an Azure Pipeline. 
 
 This has required changes to 2 files only. 
 
-1) The **azure-pipelines.yml** file will run tests for the included Calculator sample canvas app. 
+1) The **azure-pipelines.yml** file has been added to run tests against the included Calculator sample canvas app. 
 
-This canvas app has been uploaded to my developer tennant as per instructions in the main Test Engine repo.  
+__Note: This canvas app has been uploaded to my developer tennant as per instructions in the main Test Engine repo__
 
 
-2) The **config.dev.json** file has been added with relevant details populated. This file points to the tests to be run.  This means pointing to the testPlan.fx.yaml file in the samples/Calculator directory.
+2) The **config.dev.json** file has been added with details of the tennant and which test plan file to run. For the example, it is pointing to the testPlan.fx.yaml file in the samples/Calculator directory.
 
  
 ## Use
-For future use in a pipeline you need only to add the relevant tests to testplan.fx.yaml file. 
-Update the config file to point to that test plan and to the location of the canvas app in your tennant.
+For future use in a pipeline you need only to add the relevant tests to a yaml file.
+
+This can be done by creating a test using the Test Studio interface within make.powerapps.com.  Created tests can be turned into .yaml files here
+
+> Advanced Tools > Open Tests > [Create the tests] > Download Suite
+
+The config.json file should then be updated to point to the new .yaml file and to the location of the canvas app in your tennant.
 
 The pipeline currently uploads the logs and screenshots from the samples/calculator/ subfolder.  This should be updated to a more appropriate location based on the new tests added.
 
